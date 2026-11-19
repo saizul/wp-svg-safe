@@ -1,0 +1,31 @@
+name: Bug report
+description: A valid SVG is damaged or rejected, the size is wrong, or the plugin does not work as documented.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting! **If an unsafe SVG gets through the sanitizer, do not post it here**: use the private security report linked on the previous page.
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What did you see, and what did you expect instead?
+    validations:
+      required: true
+  - type: textarea
+    id: svg
+    attributes:
+      label: The SVG file
+      description: Attach the file (or a minimal version of it) and say which tool exported it. Output of `wp svg-safe check file.svg` helps.
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: WordPress, PHP and plugin versions, libxml version (`php -i | grep -i libxml`), single site or multisite.
+      placeholder: |
+        WordPress 7.0, PHP 8.3, libxml 2.12, SVG Safe 0.1.0
+    validations:
+      required: true

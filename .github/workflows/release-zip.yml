@@ -1,0 +1,98 @@
+name: Release zip
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  SLUG: wp-svg-safe
+
+jobs:
+  zip:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '7.4'
+          coverage: none
+
+      - name: Check the version matches the tag
+        if: github.event_name == 'release'
+        run: |
+          tag="${GITHUB_REF_NAME#v}"
+          header=$(sed -n 's/^ \* Version: *//p' "$SLUG.php" | tr -d '[:space:]')
+          define=$(sed -n "s/^define( 'WP_SVG_SAFE_VERSION', '\(.*\)' );/\1/p" "$SLUG.php" | tr -d '[:space:]')
+          constant=$(sed -n "s/^.*const VERSION = '\(.*\)';/\1/p" src/Plugin.php | tr -d '[:space:]')
+          stable=$(sed -n 's/^Stable tag: *//p' readme.txt | tr -d '[:space:]')
+          echo "tag=$tag header=$header define=$define constant=$constant stable=$stable"
+          test "$tag" = "$header"
+          test "$tag" = "$define"
+          test "$tag" = "$constant"
+          test "$tag" = "$stable"
+
+      - name: Build the plugin folder
+        run: |
+          mkdir -p "build/$SLUG"
+          rsync -a --exclude-from=.distignore ./ "build/$SLUG/"
+          # The plugin has no runtime Composer dependencies and no JavaScript build step.
+          test ! -e "build/$SLUG/vendor"
+          test ! -e "build/$SLUG/tests"
+          test ! -e "build/$SLUG/bin"
+          test ! -e "build/$SLUG/examples"
+          test -e "build/$SLUG/$SLUG.php"
+          test -e "build/$SLUG/uninstall.php"
+          test -e "build/$SLUG/src/Plugin.php"
+          test -e "build/$SLUG/src/Sanitizer.php"
+          test -e "build/$SLUG/src/Uploads.php"
+          test -e "build/$SLUG/src/Media.php"
+          test -e "build/$SLUG/src/Admin/SettingsPage.php"
+          test -e "build/$SLUG/src/Cli/Command.php"
+          test -e "build/$SLUG/languages/$SLUG.pot"
+          test -e "build/$SLUG/readme.txt"
+          test -e "build/$SLUG/LICENSE"
+          find "build/$SLUG" -name '*.php' -print0 | xargs -0 -n1 php -l > /dev/null
+          find "build/$SLUG" -type f | sort
+
+      - name: Smoke test the sanitizer from the zip
+        run: |
+          php -r '
+            define("ABSPATH", __DIR__);
+            spl_autoload_register(function ($c) {
+              $prefix = "Saizul\\SvgSafe\\";
+              if (strpos($c, $prefix) === 0) { require "build/wp-svg-safe/src/" . str_replace("\\", "/", substr($c, strlen($prefix))) . ".php"; }
+            });
+            $s     = new Saizul\SvgSafe\Sanitizer();
+            $evil  = $s->sanitize("<svg xmlns=\"http://www.w3.org/2000/svg\" onload=\"alert(1)\"><script>alert(2)</script><rect width=\"4\" height=\"2\"/></svg>");
+            $xxe   = $s->sanitize("<!DOCTYPE svg [<!ENTITY x SYSTEM \"file:///etc/passwd\">]><svg xmlns=\"http://www.w3.org/2000/svg\">&x;</svg>");
+            $size  = Saizul\SvgSafe\Dimensions::from_svg("<svg viewBox=\"0 0 120 40\"></svg>");
+            $ok = $evil->ok() && false === strpos($evil->svg(), "script") && false === strpos($evil->svg(), "onload")
+              && "entities" === $xxe->error() && 120 === $size["width"] && 40 === $size["height"];
+            exit($ok ? 0 : 1);
+          '
+
+      - name: Create the zip
+        run: |
+          cd build
+          zip -r -q "../$SLUG.zip" "$SLUG"
+          cd ..
+          unzip -l "$SLUG.zip" | tail -n 1
+
+      - name: Upload workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.SLUG }}
+          path: ${{ env.SLUG }}.zip
+
+      - name: Attach to the release
+        if: github.event_name == 'release'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release upload "$GITHUB_REF_NAME" "$SLUG.zip" --clobber

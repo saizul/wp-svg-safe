@@ -1,0 +1,1 @@
+<svg xmlns="http://www.w3.org/2000/svg"><style>rect { width: expression(alert(1)) }</style><rect style="background:expression(alert(1));fill:red" width="1" height="1"/></svg>

@@ -1,0 +1,26 @@
+# Composer
+/vendor/
+
+# Tooling caches
+.phpunit.result.cache
+.phpunit.cache/
+.phpcs-cache
+/build/
+/coverage/
+
+# Release artefacts
+/dist/
+*.zip
+
+# Editors / OS
+.idea/
+.vscode/
+*.swp
+.DS_Store
+Thumbs.db
+
+# Local environment
+.env
+.wp-env.override.json
+wp-cli.local.yml
+*.log

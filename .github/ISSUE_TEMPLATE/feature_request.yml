@@ -1,0 +1,32 @@
+name: Feature request
+description: Suggest an improvement to the sanitizer, the media library integration, WP-CLI or developer hooks.
+labels: [enhancement]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        SVG Safe stays small and strict on purpose. Requests to allow a new element or attribute need a real-world SVG that uses it, and a note on how it could be abused.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What are you trying to do, and what gets in the way?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Could a filter (`svg_safe_allowed_elements`, `svg_safe_allowed_attributes`) do this instead?
+  - type: checkboxes
+    id: build
+    attributes:
+      label: Contribution
+      options:
+        - label: I would like to open a pull request for this.

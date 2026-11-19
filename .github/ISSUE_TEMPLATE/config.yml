@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Report a security vulnerability or sanitizer bypass
+    url: https://github.com/saizul/wp-svg-safe/security/advisories/new
+    about: Please report unsafe SVGs that get through privately, not in a public issue.
+  - name: Pick a beginner task
+    url: https://github.com/saizul/wp-svg-safe/blob/main/CONTRIBUTING.md#good-first-issues
+    about: Small, well-scoped tasks for first-time contributors.

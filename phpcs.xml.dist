@@ -1,0 +1,54 @@
+<?xml version="1.0"?>
+<ruleset name="SVG Safe">
+	<description>WordPress Coding Standards and PHP compatibility for the plugin code.</description>
+
+	<file>wp-svg-safe.php</file>
+	<file>uninstall.php</file>
+	<file>src</file>
+
+	<exclude-pattern>/vendor/*</exclude-pattern>
+	<exclude-pattern>/tests/*</exclude-pattern>
+
+	<arg name="extensions" value="php"/>
+	<arg name="colors"/>
+	<arg value="sp"/>
+	<arg name="parallel" value="8"/>
+
+	<config name="minimum_wp_version" value="6.0"/>
+	<config name="testVersion" value="7.4-"/>
+
+	<rule ref="WordPress">
+		<!-- Classes are autoloaded with PSR-4, so file names follow class names. -->
+		<exclude name="WordPress.Files.FileName"/>
+	</rule>
+
+	<rule ref="PHPCompatibilityWP"/>
+
+	<!-- WP-CLI passes $args and $assoc_args to every subcommand. -->
+	<rule ref="Generic.CodeAnalysis.UnusedFunctionParameter">
+		<exclude-pattern>/src/Cli/*</exclude-pattern>
+	</rule>
+
+	<!-- DOMDocument properties (childNodes, namespaceURI...) are camelCase. -->
+	<rule ref="WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase">
+		<exclude-pattern>/src/Sanitizer.php</exclude-pattern>
+	</rule>
+
+	<rule ref="WordPress.WP.I18n">
+		<properties>
+			<property name="text_domain" type="array">
+				<element value="wp-svg-safe"/>
+			</property>
+		</properties>
+	</rule>
+
+	<rule ref="WordPress.NamingConventions.PrefixAllGlobals">
+		<properties>
+			<property name="prefixes" type="array">
+				<element value="wp_svg_safe"/>
+				<element value="svg_safe"/>
+				<element value="Saizul\SvgSafe"/>
+			</property>
+		</properties>
+	</rule>
+</ruleset>

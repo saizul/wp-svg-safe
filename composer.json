@@ -1,0 +1,67 @@
+{
+    "name": "saizul/wp-svg-safe",
+    "description": "SVG Safe: allow SVG and SVGZ uploads in WordPress safely. Role-based permission, strict allowlist sanitizer built on DOMDocument (no external library), correct dimensions, media library previews and WP-CLI re-sanitizing.",
+    "type": "wordpress-plugin",
+    "license": "GPL-2.0-or-later",
+    "keywords": [
+        "wordpress",
+        "svg",
+        "svgz",
+        "sanitizer",
+        "security",
+        "xss",
+        "media-library",
+        "uploads",
+        "wp-cli"
+    ],
+    "homepage": "https://github.com/saizul/wp-svg-safe",
+    "authors": [
+        {
+            "name": "Saizul Amin",
+            "homepage": "https://saizul.com"
+        }
+    ],
+    "support": {
+        "issues": "https://github.com/saizul/wp-svg-safe/issues",
+        "source": "https://github.com/saizul/wp-svg-safe"
+    },
+    "require": {
+        "php": ">=7.4",
+        "ext-dom": "*",
+        "ext-libxml": "*",
+        "ext-zlib": "*"
+    },
+    "require-dev": {
+        "dealerdirect/phpcodesniffer-composer-installer": "^1.0",
+        "phpcompatibility/phpcompatibility-wp": "^2.1",
+        "phpunit/phpunit": "^9.6",
+        "squizlabs/php_codesniffer": "^3.9",
+        "wp-coding-standards/wpcs": "^3.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "Saizul\\SvgSafe\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Saizul\\SvgSafe\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": "phpunit",
+        "lint": "find . -name '*.php' -not -path './vendor/*' -print0 | xargs -0 -n1 php -l",
+        "phpcs": "phpcs",
+        "phpcbf": "phpcbf",
+        "make-pot": "php bin/make-pot.php"
+    },
+    "config": {
+        "sort-packages": true,
+        "platform": {
+            "php": "7.4.33"
+        },
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        }
+    }
+}

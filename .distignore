@@ -1,0 +1,24 @@
+# Files and folders left out of the installable plugin zip.
+/.git
+/.github
+/bin
+/tests
+/vendor
+/node_modules
+/dist
+/build
+.distignore
+.editorconfig
+.gitignore
+.gitattributes
+.phpunit.result.cache
+composer.json
+composer.lock
+phpcs.xml.dist
+phpunit.xml.dist
+CODE_OF_CONDUCT.md
+CONTRIBUTING.md
+SECURITY.md
+CHANGELOG.md
+README.md
+/examples

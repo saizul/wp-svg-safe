@@ -1,0 +1,1 @@
+<svg xmlns="http://www.w3.org/2000/svg"><svg onload="alert(1)"><g><g><script>alert(2)</script></g></g></svg></svg>
