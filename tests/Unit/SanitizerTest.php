@@ -210,4 +210,26 @@ final class SanitizerTest extends WpTestCase {
 		self::assertStringContainsString( '<image href="' . $png . '"/>', $result->svg() );
 		self::assertSame( array( 'attribute:href', 'attribute:fill' ), $result->removed() );
 	}
+
+	public function test_unused_namespace_declarations_are_dropped(): void {
+		$svg    = '<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns:xlink="http://www.w3.org/1999/xlink">'
+			. '<sodipodi:namedview id="n"/><g inkscape:label="Layer" xmlns:dc="http://purl.org/dc/elements/1.1/"><rect width="1" height="1"/></g></svg>';
+		$result = ( new Sanitizer() )->sanitize( $svg );
+
+		self::assertTrue( $result->ok() );
+		self::assertStringContainsString( '<svg xmlns="http://www.w3.org/2000/svg"><g><rect width="1" height="1"/></g></svg>', $result->svg() );
+		self::assertStringNotContainsString( 'xmlns:', $result->svg() );
+		self::assertNotContains( 'namespace:inkscape', $result->removed() );
+	}
+
+	public function test_used_namespace_declarations_are_kept(): void {
+		$svg    = '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:foo="urn:foo"><defs><circle id="c" r="1"/></defs><use xlink:href="#c"/></svg>';
+		$result = ( new Sanitizer() )->sanitize( $svg );
+
+		self::assertStringContainsString( '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><defs>', $result->svg() );
+		self::assertStringContainsString( '<use xlink:href="#c"/>', $result->svg() );
+
+		$prefixed = ( new Sanitizer() )->sanitize( '<svg:svg xmlns:svg="http://www.w3.org/2000/svg" xmlns:x="urn:x"><svg:rect width="1" height="1"/></svg:svg>' );
+		self::assertStringContainsString( '<svg:svg xmlns:svg="http://www.w3.org/2000/svg"><svg:rect width="1" height="1"/></svg:svg>', $prefixed->svg() );
+	}
 }

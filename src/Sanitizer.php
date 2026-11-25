@@ -12,6 +12,7 @@ use DOMDocument;
 use DOMElement;
 use DOMNode;
 use DOMText;
+use DOMXPath;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -33,6 +34,8 @@ defined( 'ABSPATH' ) || exit;
  *   `data:`, `expression(`, `@import`, backslash escapes or a `url()` that
  *   does not point to a fragment.
  * - Comments, processing instructions and entity references are removed.
+ * - Namespace declarations that nothing uses any more (`xmlns:inkscape`,
+ *   `xmlns:sodipodi`, an unused `xmlns:xlink`) are dropped from the output.
  */
 final class Sanitizer {
 
@@ -457,6 +460,8 @@ final class Sanitizer {
 			$root->setAttributeNS( 'http://www.w3.org/2000/xmlns/', 'xmlns', self::SVG_NS );
 		}
 
+		$this->prune_namespaces( $doc, $root );
+
 		$out = $doc->saveXML( $root );
 		if ( false === $out || '' === $out ) {
 			return Result::failure( 'parse' );
@@ -720,6 +725,49 @@ final class Sanitizer {
 	 */
 	private static function flatten( string $value ): string {
 		return strtolower( (string) preg_replace( '/[\x00-\x20\x7f]+/', '', $value ) );
+	}
+
+	/**
+	 * Drop prefixed namespace declarations that no remaining element or
+	 * attribute uses. Not recorded in the removed list: it does not change
+	 * how the file renders.
+	 *
+	 * @param DOMDocument $doc  Document.
+	 * @param DOMElement  $root Root element, already cleaned.
+	 */
+	private function prune_namespaces( DOMDocument $doc, DOMElement $root ): void {
+		$xpath = new DOMXPath( $doc );
+		$used  = array( self::XML_NS => true );
+		$nodes = $xpath->query( 'descendant-or-self::* | descendant-or-self::*/@*', $root );
+		if ( false === $nodes ) {
+			return;
+		}
+		foreach ( $nodes as $node ) {
+			if ( null !== $node->namespaceURI ) {
+				$used[ $node->namespaceURI ] = true;
+			}
+		}
+		// Collect first, then remove, so no query runs on a modified tree.
+		$unused = array();
+		foreach ( $nodes as $element ) {
+			if ( ! $element instanceof DOMElement ) {
+				continue;
+			}
+			$declared = $xpath->query( 'namespace::*', $element );
+			if ( false === $declared ) {
+				continue;
+			}
+			foreach ( $declared as $namespace ) {
+				$prefix = (string) $namespace->prefix;
+				$uri    = (string) $namespace->namespaceURI;
+				if ( '' !== $prefix && 'xml' !== $prefix && ! isset( $used[ $uri ] ) ) {
+					$unused[] = array( $element, $uri, $prefix );
+				}
+			}
+		}
+		foreach ( $unused as list( $element, $uri, $prefix ) ) {
+			$element->removeAttributeNS( $uri, $prefix );
+		}
 	}
 
 	/**
