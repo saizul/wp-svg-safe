@@ -177,7 +177,8 @@ or a video/Lottie file instead. Safe animation support is on the roadmap.
 
 **An Inkscape file looks the same but is smaller.**
 Inkscape and Sodipodi metadata (`sodipodi:namedview`, `inkscape:label`) is
-removed. It does not affect rendering.
+removed, and so are namespace declarations nothing uses any more
+(`xmlns:inkscape`, an unused `xmlns:xlink`). It does not affect rendering.
 
 **What about files that were uploaded before?**
 They are not touched until you run `wp svg-safe sanitize`. Run it with
@@ -244,7 +245,6 @@ Items marked **good first issue** are small and well scoped; see
 
 - Add more payloads to the malicious corpus - **good first issue**
 - Add icons exported from Figma, Sketch and Affinity to the valid corpus - **good first issue**
-- Remove unused namespace declarations from the output - **good first issue**
 - "Sanitized" note with the removed items in the attachment details - **good first issue**
 - `wp svg-safe sanitize --since=<date>` - **good first issue**
 - Optional minification (strip whitespace and metadata) - **good first issue**

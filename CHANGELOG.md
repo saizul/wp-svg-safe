@@ -6,6 +6,13 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Changed
+
+- The sanitizer drops namespace declarations that no remaining element or
+  attribute uses (for example `xmlns:inkscape` and `xmlns:sodipodi` after the
+  editor metadata is removed, or an unused `xmlns:xlink`). Output is smaller;
+  rendering is unchanged. This is not reported in the removed items.
+
 ## [0.1.0] - 2026-11-19
 
 ### Added

@@ -35,25 +35,21 @@ Each task is small, has a clear "done" and touches one or two files.
    Sketch, Affinity Designer or an icon set (with a compatible license) into
    `tests/fixtures/valid/`. They must come out unchanged; if one does not,
    open an issue with the diff.
-3. **Remove unused namespace declarations.** After Inkscape attributes are
-   removed, `xmlns:inkscape` stays on the root element. Remove declarations
-   that no element or attribute uses any more in `Sanitizer::sanitize()` and
-   add a test.
-4. **Show what was removed in the attachment details.** Store the removed
+3. **Show what was removed in the attachment details.** Store the removed
    items in post meta in `Uploads::prefilter()` / after the attachment is
    created, and print them with the `attachment_fields_to_edit` filter.
    Escape the output.
-5. **Add `--since=<date>` to `wp svg-safe sanitize`.** Only process
+4. **Add `--since=<date>` to `wp svg-safe sanitize`.** Only process
    attachments uploaded after a date (`date_query` in
    `Command::all_svg_ids()`), with tests in `tests/Unit/CliTest.php`.
-6. **Optional minification.** Add a `svg_safe_minify` filter (default
+5. **Optional minification.** Add a `svg_safe_minify` filter (default
    false) that removes whitespace-only text nodes outside `<text>` and
    `<style>`, with tests that valid icons still render the same (C14N of the
    minified input).
-7. **Document the default allowlists.** Generate a Markdown table of
+6. **Document the default allowlists.** Generate a Markdown table of
    `Sanitizer::default_elements()` and `default_attributes()` with a small
    script in `bin/` and link it from the README.
-8. **Translate the plugin into your language** with Poedit or Loco Translate
+7. **Translate the plugin into your language** with Poedit or Loco Translate
    from `languages/wp-svg-safe.pot`, and open a PR with the `.po` file.
 
 ## Development setup
